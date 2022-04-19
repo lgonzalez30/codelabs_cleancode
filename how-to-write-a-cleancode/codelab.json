@@ -1,0 +1,24 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2022-04-18T15:35:12-05:00",
+  "id": "how-to-write-a-cleancode",
+  "duration": 73,
+  "title": "Introducción a CleanCode",
+  "summary": "How to Write a CleanCode",
+  "source": "CleanCode.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "courses"
+  ],
+  "tags": [
+    "medium"
+  ],
+  "feedback": "https://zarin.io",
+  "url": "how-to-write-a-cleancode"
+}

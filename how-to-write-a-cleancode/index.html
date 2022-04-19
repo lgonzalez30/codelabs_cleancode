@@ -1,0 +1,540 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Introducción a CleanCode</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="how-to-write-a-cleancode"
+                  title="Introducción a CleanCode"
+                  environment="web"
+                  feedback-link="https://zarin.io">
+    
+      <google-codelab-step label="Principios de ingeniería de software" duration="1">
+        <h2 is-upgraded>Tomado del libro Clean Code de Robert C. Martin, adaptado para Java</h2>
+<p>Esto es una guía para producir software legible, reutilizable y refactorizable en Java.</p>
+<p>No todos los principios de este documento tienen que seguirse estrictamente, e incluso menos serán aceptados universalmente. Estas son pautas y nada más, pero están codificadas durante muchos años de experiencia colectiva por los autores de Clean Code.</p>
+<p>Nuestro oficio de ingeniería de software tiene poco más de 50 años y todavía estamos aprendiendo mucho. Cuando la arquitectura del software sea tan antigua como la arquitectura misma, quizás tengamos reglas más difíciles de seguir. Por ahora, deje que estas pautas sirvan como piedra de toque para evaluar la calidad del código Java que usted y su equipo producen.</p>
+<p>Una cosa más: saber esto no lo convertirá inmediatamente en un mejor desarrollador de software, y trabajar con ellos durante muchos años no significa que no cometerá errores. Cada pieza de código comienza como un primer borrador, como arcilla húmeda a la que se le da forma final. Finalmente, eliminamos las imperfecciones cuando lo revisamos con nuestros compañeros. No se castigue por los primeros borradores que necesitan mejorar. ¡Mejora el código en su lugar!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Variables" duration="2">
+        <h2 is-upgraded>Use nombres de variables significativos y pronunciables</h2>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java"> 
+  String yyyymmdstr = new SimpleDateFormat(&#34;YYYY/MM/DD&#34;).format(new Date());  
+
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java"> 
+  String currentDate = new SimpleDateFormat(&#34;YYYY/MM/DD&#34;).format(new Date());  
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Usar el mismo vocabulario para el mismo tipo de variable" duration="3">
+        <h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java"> 
+  getUserInfo();
+  getClientData();
+  getCustomerRecord();  
+
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java"> 
+  getUser();  
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Usar nombres buscables" duration="3">
+        <p>Leeremos más código del que jamás escribiremos. Es importante que el código que escribimos sea legible y buscable. Al no nombrar variables que terminan siendo significativas para entender nuestro programa, lastimamos a nuestros lectores. Haga que sus nombres se puedan buscar.</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java"> 
+  // What the heck is 86400000 for?
+setTimeout(blastOff, 86400000);  
+
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java"> 
+  // Declare them as capitalized `const` globals.
+public static final int MILLISECONDS_IN_A_DAY = 86400000;
+
+setTimeout(blastOff, MILLISECONDS_IN_A_DAY);  
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Usar variables explicativas" duration="3">
+        <h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java"> 
+  String address = &#34;One Infinite Loop, Cupertino 95014&#34;;
+  String cityZipCodeRegex = &#34;/^[^,\\\\]+[,\\\\\\s]+(.+?)\\s*(\\d{5})?$/&#34;;
+
+  saveCityZipCode(address.split(cityZipCodeRegex)[0],
+                address.split(cityZipCodeRegex)[1]);
+
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java"> 
+  String address = &#34;One Infinite Loop, Cupertino 95014&#34;;
+  String cityZipCodeRegex = &#34;/^[^,\\\\]+[,\\\\\\s]+(.+?)\\s*(\\d{5})?$/&#34;;
+
+  String city = address.split(cityZipCodeRegex)[0];
+  String zipCode = address.split(cityZipCodeRegex)[1];
+
+  saveCityZipCode(city, zipCode);  
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Evite el mapeo mental" duration="3">
+        <p>No fuerce al lector de su código a traducir lo que significa la variable. Explícito es mejor que implícito.</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  String [] l = {&#34;Austin&#34;, &#34;New York&#34;, &#34;San Francisco&#34;};
+
+  for (int i = 0; i &lt; l.length; i++) {
+    String li = l[i];
+    doStuff();
+    doSomeOtherStuff();
+    // ...
+    // ...
+    // ...
+    // Wait, what is `$li` for again?
+    dispatch(li);
+  }  
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">  String[] locations = {&#34;Austin&#34;, &#34;New York&#34;, &#34;San Francisco&#34;};
+
+  for (String location : locations) {
+    doStuff();
+    doSomeOtherStuff();
+    // ...
+    // ...
+    // ...
+    dispatch(location);
+  }
+    
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="No agregue contexto innecesario" duration="3">
+        <p>Si el nombre de su clase/objeto le dice algo, no lo repita en su nombre de variable.</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  class Car {
+  public String carMake = &#34;Honda&#34;;
+  public String carModel = &#34;Accord&#34;;
+  public String carColor = &#34;Blue&#34;;
+  }
+
+  void paintCar(Car car) {
+  car.carColor = &#34;Red&#34;;
+  }
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">  class Car {
+  public String make = &#34;Honda&#34;;
+  public String model = &#34;Accord&#34;;
+  public String color = &#34;Blue&#34;;
+  }
+
+  void paintCar(Car car) {
+  car.color = &#34;Red&#34;;
+  }
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Funciones" duration="3">
+        <p>Limitar la cantidad de parámetros de función es increíblemente importante porque facilita la prueba de su función. Tener más de tres conduce a una explosión combinatoria en la que tienes que probar toneladas de casos diferentes con cada argumento por separado.</p>
+<p>Uno o dos argumentos es el caso ideal, y tres deben evitarse si es posible. Cualquier cosa más que eso debe consolidarse. Por lo general, si tiene más de dos argumentos, su función está tratando de hacer demasiado. En los casos en que no lo sea, la mayoría de las veces un objeto de nivel superior será suficiente como argumento.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Las funciones deben hacer una cosa" duration="3">
+        <p>Esta es, con mucho, la regla más importante en la ingeniería de software. Cuando las funciones hacen más de una cosa, son más difíciles de componer, probar y razonar. Cuando puede aislar una función en una sola acción, se pueden refactorizar fácilmente y su código se leerá mucho más claro. Si no saca nada más de esta guía aparte de esto, estará por delante de muchos desarrolladores.</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  public void emailClients(List&lt;Client&gt; clients) {
+    for (Client client : clients) {
+        Client clientRecord = repository.findOne(client.getId());
+        if (clientRecord.isActive()){
+            email(client);
+        }
+    }
+  }
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">  public void emailClients(List&lt;Client&gt; clients) {
+    for (Client client : clients) {
+        if (isActiveClient(client)) {
+            email(client);
+        }
+    }
+  }
+
+  private boolean isActiveClient(Client client) {
+    Client clientRecord = repository.findOne(client.getId());
+    return clientRecord.isActive();
+  }
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Los nombres de las funciones deben decir lo que hacen" duration="3">
+        <h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  private void addToDate(Date date, int month){
+    //..
+  }
+
+  Date date = new Date();
+
+  // It&#39;s hard to to tell from the method name what is added
+  addToDate(date, 1);
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">  private void addMonthToDate(Date date, int month){
+    //..
+  }
+
+  Date date = new Date();
+  addMonthToDate(1, date)
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Las funciones solo deben tener un nivel de abstracción" duration="3">
+        <p>Cuando tiene más de un nivel de abstracción, su función suele hacer demasiado. La división de funciones conduce a la reutilización y a pruebas más sencillas.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Eliminar código duplicado" duration="1">
+        <p>Haga todo lo posible para evitar el código duplicado. El código duplicado es malo porque significa que hay más de un lugar para modificar algo si necesita cambiar alguna lógica.</p>
+<p>Imagínese si dirige un restaurante y realiza un seguimiento de su inventario: todos sus tomates, cebollas, ajo, especias, etc. Si tiene varias listas en las que mantiene esto, entonces todas deben actualizarse cuando sirve un plato con tomates. en ellos. Si solo tiene una lista, ¡solo hay un lugar para actualizar!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="No use banderas como parámetros de función" duration="1">
+        <p>Las banderas le dicen a su usuario que esta función hace más de una cosa. Las funciones deben hacer una cosa. Divide tus funciones si están siguiendo diferentes rutas de código basadas en un booleano.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Evite los efectos secundarios (part 1)" duration="3">
+        <p>Una función produce un efecto secundario si hace algo más que tomar un valor y devolver otro valor o valores. Un efecto secundario podría ser escribir en un archivo, modificar alguna variable global o transferir accidentalmente todo su dinero a un extraño.</p>
+<p>Ahora, usted necesita tener efectos secundarios en un programa de vez en cuando. Al igual que en el ejemplo anterior, es posible que deba escribir en un archivo. Lo que quieres hacer es centralizar dónde estás haciendo esto. No tenga varias funciones y clases que escriban en un archivo en particular. Tenga un servicio que lo haga. Uno y solo uno.</p>
+<p>El punto principal es evitar errores comunes como compartir el estado entre objetos sin ninguna estructura, usar tipos de datos mutables en los que cualquier cosa puede escribir y no centralizar dónde ocurren los efectos secundarios. Si puede hacer esto, será más feliz que la gran mayoría de los otros programadores.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Evite los efectos secundarios (part 2)" duration="3">
+        <p>En JavaScript, las primitivas se pasan por valor y los objetos/matrices se pasan por referencia. En el caso de objetos y matrices, si su función realiza un cambio en una matriz de carrito de compras, por ejemplo, agregando un artículo para comprar, cualquier otra función que use esa matriz de carrito se verá afectada por esta adición. Eso puede ser genial, sin embargo, también puede ser malo. Imaginemos una mala situación:</p>
+<p>El usuario hace clic en el botón &#34;Comprar&#34;, que llama a una función de compra que genera una solicitud de red y envía la matriz del carrito al servidor. Debido a una mala conexión de red, la función de compra tiene que volver a intentar la solicitud. Ahora, ¿qué pasa si, mientras tanto, el usuario hace clic accidentalmente en el botón &#34;Agregar al carrito&#34; en un artículo que en realidad no quiere antes de que comience la solicitud de red? Si eso sucede y comienza la solicitud de red, entonces esa función de compra enviará el artículo agregado accidentalmente porque tiene una referencia a una matriz de carrito de compras que la función addItemToCart modificó al agregar un artículo no deseado.</p>
+<p>Una gran solución sería que addItemToCart siempre clone el carrito, lo edite y devuelva el clon. Esto asegura que ninguna otra función que retiene una referencia del carrito de compras se verá afectada por ningún cambio.</p>
+<p>Dos advertencias para mencionar a este enfoque:</p>
+<p>Puede haber casos en los que realmente desee modificar el objeto de entrada, pero cuando adopte esta práctica de programación, encontrará que esos casos son bastante raros. ¡La mayoría de las cosas se pueden refactorizar para que no tengan efectos secundarios!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="No escribas en funciones globales" duration="3">
+        <p>Contaminar globales es una mala práctica en JavaScript porque podría entrar en conflicto con otra biblioteca y el usuario de su API no se daría cuenta hasta que obtenga una excepción en producción. Pensemos en un ejemplo: ¿qué pasaría si quisiera extender el método Array nativo de JavaScript para tener un método diff que pudiera mostrar la diferencia entre dos matrices? Podría escribir su nueva función en Array.prototype, pero podría chocar con otra biblioteca que intentara hacer lo mismo. ¿Qué pasaría si esa otra biblioteca solo estuviera usando diff para encontrar la diferencia entre el primer y el último elemento de una matriz? Es por eso que sería mucho mejor usar las clases ES2015/ES6 y simplemente extender el Array global.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Favorecer la programación funcional sobre la programación imperativa" duration="3">
+        <p>JavaScript no es un lenguaje funcional en la forma en que lo es Haskell, pero tiene un sabor funcional. Los lenguajes funcionales son más limpios y fáciles de probar. Favorezca este estilo de programación cuando pueda.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Evitar condicionales" duration="1">
+        <p>Esto parece una tarea imposible. Al escuchar esto por primera vez, la mayoría de la gente dice: &#34;¿cómo se supone que debo hacer algo sin una declaración if?&#34; La respuesta es que puede usar el polimorfismo para lograr la misma tarea en muchos casos. La segunda pregunta suele ser, &#34;bueno, eso es genial, pero ¿por qué querría hacer eso?&#34; La respuesta es un concepto de código limpio anterior que aprendimos: una función solo debe hacer una cosa. Cuando tiene clases y funciones que tienen declaraciones if, le está diciendo a su usuario que su función hace más de una cosa. Recuerda, solo haz una cosa.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="No sobreoptimices" duration="1">
+        <p>Los navegadores modernos realizan una gran cantidad de optimización bajo el capó en tiempo de ejecución. Muchas veces, si está optimizando, simplemente está perdiendo el tiempo. Hay buenos recursos para ver dónde falta la optimización. Apunta a aquellos mientras tanto, hasta que se arreglen si es posible.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Eliminar código muerto" duration="1">
+        <p>El código muerto es tan malo como el código duplicado. No hay razón para mantenerlo en su base de código. Si no está siendo llamado, ¡deshazte de él! Todavía estará seguro en su historial de versiones si todavía lo necesita.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Objetos y estructuras de datos" duration="3">
+        <p>Usar getters y setters El uso de getters y setters para acceder a los datos de los objetos podría ser mejor que simplemente buscar una propiedad en un objeto. &#34;¿Por qué?&#34; podrías preguntar. Bueno, aquí hay una lista desorganizada de razones por las cuales:</p>
+<ul>
+<li>Cuando desee hacer algo más que obtener una propiedad de objeto, no tiene que buscar y cambiar cada elemento de acceso en su base de código.</li>
+<li>Simplifica la adición de validación al hacer un conjunto.</li>
+<li>Encapsula la representación interna.</li>
+<li>Fácil de agregar registro y manejo de errores al obtener y configurar.</li>
+<li>Puede cargar de forma diferida las propiedades de su objeto, digamos obtenerlo de un servidor.</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Hacer que los objetos tengan miembros privados" duration="1">
+        <p>Esto se puede lograr a través de cierres (para ES5 e inferior).</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Preferir la composición a la herencia" duration="1">
+        <p>Como se afirma en Design Patterns by the Gang of Four, debes preferir la composición a la herencia siempre que puedas. Hay muchas buenas razones para usar la herencia y muchas buenas razones para usar la composición. El punto principal de esta máxima es que si tu mente busca instintivamente la herencia, trata de pensar si la composición podría modelar mejor tu problema. En algunos casos puede.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Solido" duration="1">
+        <h2 is-upgraded>Principio de responsabilidad única (SRP)</h2>
+<p>Como se indica en Clean Code, &#34;Nunca debe haber más de una razón para cambiar una clase&#34;. Es tentador abarrotar una clase con mucha funcionalidad, como cuando solo puedes llevar una maleta en tu vuelo. El problema con esto es que su clase no será conceptualmente cohesiva y le dará muchas razones para cambiar. Es importante minimizar la cantidad de veces que necesita cambiar una clase. Es importante porque si hay demasiada funcionalidad en una clase y modifica una parte de ella, puede ser difícil entender cómo afectará eso a otros módulos dependientes en su base de código.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Principio abierto/cerrado (OCP)" duration="1">
+        <p>Como afirma Bertrand Meyer, &#34;las entidades de software (clases, módulos, funciones, etc.) deben estar abiertas a la extensión, pero cerradas a la modificación&#34;. Pero, ¿qué significa eso? Este principio básicamente establece que debe permitir a los usuarios agregar nuevas funcionalidades sin cambiar el código existente.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Principio de sustitución de Liskov (LSP)" duration="3">
+        <p>Este es un término aterrador para un concepto muy simple. Se define formalmente como &#34;Si S es un subtipo de T, entonces los objetos de tipo T pueden reemplazarse con objetos de tipo S (es decir, los objetos de tipo S pueden sustituir a los objetos de tipo T) sin alterar ninguna de las propiedades deseables de ese programa (corrección, tarea realizada, etc.)&#34;. Esa es una definición aún más aterradora.</p>
+<p>La mejor explicación para esto es que si tiene una clase principal y una clase secundaria, entonces la clase base y la clase secundaria se pueden usar indistintamente sin obtener resultados incorrectos. Esto aún puede ser confuso, así que echemos un vistazo al ejemplo clásico de Square-Rectangle. Matemáticamente, un cuadrado es un rectángulo, pero si lo modela utilizando la relación &#34;es-un&#34; a través de la herencia, rápidamente se mete en problemas.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Principio de segregación de interfaz (ISP)" duration="3">
+        <p>JavaScript no tiene interfaces, por lo que este principio no se aplica tan estrictamente como otros. Sin embargo, es importante y relevante incluso con la falta de sistema de tipos de JavaScript.</p>
+<p>El ISP afirma que &#34;no se debe obligar a los clientes a depender de interfaces que no utilizan&#34;. Las interfaces son contratos implícitos en JavaScript debido a la tipificación pato.</p>
+<p>Un buen ejemplo para observar que demuestra este principio en JavaScript es para clases que requieren objetos de configuración grandes. Es beneficioso no requerir que los clientes configuren grandes cantidades de opciones, porque la mayoría de las veces no necesitarán todas las configuraciones. Hacerlos opcionales ayuda a evitar tener una &#34;interfaz gorda&#34;.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Principio de inversión de dependencia (DIP)" duration="3">
+        <p>Este principio establece dos cosas esenciales:</p>
+<ul>
+<li>Los módulos de alto nivel no deben depender de los módulos de bajo nivel. Ambos deberían depender de abstracciones.</li>
+<li>Las abstracciones no deben depender de los detalles. Los detalles deben depender de las abstracciones.</li>
+</ul>
+<p>Esto puede ser difícil de entender al principio, pero si ha trabajado con AngularJS, habrá visto una implementación de este principio en forma de inyección de dependencia (DI). Si bien no son conceptos idénticos, DIP evita que los módulos de alto nivel conozcan los detalles de sus módulos de bajo nivel y los configuren. Puede lograr esto a través de DI. Un gran beneficio de esto es que reduce el acoplamiento entre módulos. El acoplamiento es un patrón de desarrollo muy malo porque hace que su código sea difícil de refactorizar.</p>
+<p>Como se indicó anteriormente, JavaScript no tiene interfaces, por lo que las abstracciones de las que se depende son contratos implícitos. Es decir, los métodos y propiedades que un objeto/clase expone a otro objeto/clase. En el ejemplo a continuación, el contrato implícito es que cualquier módulo de solicitud para InventoryTracker tendrá un método de elementos de solicitud.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Pruebas" duration="1">
+        <p>La prueba es más importante que el envío. Si no tiene pruebas o una cantidad inadecuada, entonces cada vez que envíe el código no estará seguro de que no haya roto nada. Decidir qué constituye una cantidad adecuada depende de su equipo, pero tener una cobertura del 100 % (todos los extractos y sucursales) es la forma en que logra una confianza muy alta y la tranquilidad del desarrollador. Esto significa que además de tener un gran marco de prueba, también necesita usar una buena herramienta de cobertura.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Manejo de errores" duration="1">
+        <p>¡Los errores lanzados son algo bueno! Significan que el tiempo de ejecución identificó con éxito cuando algo en su programa salió mal y le informa deteniendo la ejecución de la función en la pila actual, matando el proceso (en el nodo) y notificándoselo en la consola con un seguimiento de la pila.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Formateo" duration="1">
+        <p>El formateo es subjetivo. Como muchas reglas en este documento, no hay una regla estricta que deba seguir. El punto principal es NO ARGUMENTAR sobre el formato. Hay toneladas de herramientas para automatizar esto. ¡Usa uno! Es una pérdida de tiempo y dinero que los ingenieros discutan sobre el formateo.</p>
+<p>Para las cosas que no se incluyen en el ámbito del formato automático (sangría, tabulaciones frente a espacios, comillas dobles frente a simples, etc.), consulte aquí para obtener orientación.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Las personas que llaman y los llamados a funciones deben estar cerca" duration="1">
+        <p>Si una función llama a otra, mantenga esas funciones verticalmente cerca en el archivo fuente. Idealmente, mantenga a la persona que llama justo encima de la persona a la que llama. Tendemos a leer el código de arriba a abajo, como un periódico. Debido a esto, haga que su código se lea de esa manera.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Comentarios" duration="1">
+        <h2 is-upgraded>Solo comente cosas que tengan complejidad de lógica empresarial</h2>
+<p>Los comentarios son una disculpa, no un requisito. El buen código se documenta principalmente a sí mismo.</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  // Creating a List of customer names 
+  List&lt;String&gt; customerNames = Arrays.asList(&#39;Bob&#39;, &#39;Linda&#39;, &#39;Steve&#39;, &#39;Mary&#39;); 
+
+  // Using Stream findFirst() 
+  Optional&lt;String&gt; firstCustomer = customerNames.stream().findFirst(); 
+
+  // if the stream is empty, an empty 
+  // Optional is returned. 
+  if (firstCustomer.isPresent()) { 
+    System.out.println(firstCustomer.get()); 
+  } 
+  else { 
+    System.out.println(&#34;no value&#34;); 
+  }
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">  List&lt;String&gt; customerNames = Arrays.asList(&#39;Bob&#39;, &#39;Linda&#39;, &#39;Steve&#39;, &#39;Mary&#39;); 
+
+  Optional&lt;String&gt; firstCustomer = customerNames.stream().findFirst(); 
+
+  if (firstCustomer.isPresent()) { 
+    System.out.println(firstCustomer.get()); 
+  } 
+  else { 
+    System.out.println(&#34;no value&#34;); 
+  } 
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="No use un comentario cuando puede usar una función o una variable" duration="1">
+        <p>El mejor comentario es sin comentarios.</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  //Check to see if order is eligible to ship
+  if((order.isPaid &amp; order.isLabeled) &amp;&amp; CUSTOMER_FLAG) {
+  // ...
+  }
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">  if(order.isEligibleToShip()) {
+  // ...
+  } 
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="No deje código comentado en su base de código" duration="1">
+        <p>El control de versiones existe por una razón. Deje el código antiguo en su historial.</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  doStuff();
+  // doOtherStuff();
+  // doSomeMoreStuff();
+  // doSoMuchStuff();
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">  doStuff(); 
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="No tengo comentarios de diario" duration="1">
+        <p>¡Recuerde, use el control de versiones! No hay necesidad de código inactivo, código comentado y especialmente comentarios de revistas. ¡Usa git log para obtener el historial!</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  /**
+  * 2021-03-06: Renamed clean to cleanCode (DL)
+  * 2020-01-03: Changed return value (LB)
+  * 2019-05-12: Added clean method (DL)
+  */
+  cleanCode(String code) {
+   return null;
+  }
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">   cleanCode(String code) {
+   return null;
+   }
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Evite los marcadores de posición" duration="1">
+        <p>Por lo general, solo agregan ruido. Deje que las funciones y los nombres de las variables, junto con la sangría y el formato adecuados, le den la estructura visual a su código.</p>
+<h2 is-upgraded>Malo:</h2>
+<pre><code language="language-java" class="language-java">  ////////////////////////////////////////////////////////////////////////////////
+  // Instantiate Order List
+  ////////////////////////////////////////////////////////////////////////////////
+  List&lt;Order&gt; orders = new ArrayList();
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Ship Orders that are eligible
+  ////////////////////////////////////////////////////////////////////////////////
+ 
+  orders.filter(Order::isEligibleToShip).forEach(x -&gt; ship(x));
+  
+</code></pre>
+<h2 is-upgraded>Bueno:</h2>
+<pre><code language="language-java" class="language-java">   List&lt;Order&gt; orders = new ArrayList();
+
+   orders.filter(Order::isEligibleToShip).forEach(x -&gt; ship(x));
+
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Traducción" duration="1">
+        <p>Abierto para traducciones.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
